@@ -6,6 +6,13 @@ function getUsers(req, res, next) {
   });
 }
 
+function getUser(req, res, next) {
+  userHelper.getUser(req.logTokens, req.params, (data) => {
+    res.json(data);
+  });
+}
+
 module.exports = {
-  getUsers
+  getUsers,
+  getUser
 };
