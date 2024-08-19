@@ -27,6 +27,58 @@ describe('userHelper', () => {
       userHelper.getUsers(logTokens, callback);
     });
   });
+  describe('addUser', () => {
+    it('should add a user successfully', (done) => {
+      const logTokens = 'logToken';
+      const request = {
+        user: 'johndoe',
+        firstname: 'John',
+        lastname: 'Doe',
+        email: 'john.doe@example.com'
+      };
+      const callback = sinon.spy();
+
+      const mockResult = { rowsAffected: [1] };
+      sinon.stub(userDB, 'addUser').resolves(mockResult);
+
+      userHelper.addUser(logTokens, request, callback);
+
+      setImmediate(() => {
+        expect(callback.calledOnce).to.be.true;
+        expect(callback.calledWith({
+          status: 200,
+          message: 'User added successfully',
+          msg: 'success'
+        })).to.be.true;
+        userDB.addUser.restore();
+        done();
+      });
+    });
+
+    it('should handle errors', (done) => {
+      const logTokens = 'logToken';
+      const request = {
+        user: 'johndoe',
+        firstname: 'John',
+        lastname: 'Doe',
+        email: 'john.doe@example.com'
+      };
+      const callback = sinon.spy();
+
+      const error = new Error('Database error');
+      sinon.stub(userDB, 'addUser').rejects(error);
+
+      userHelper.addUser(logTokens, request, callback);
+
+      setImmediate(() => {
+        expect(callback.calledOnce).to.be.true;
+        expect(callback.calledWith(error)).to.be.true;
+        userDB.addUser.restore();
+        done();
+      });
+    });
+  });
+
   describe('getUser', () => {
     it('should call callback with data from userDB.getUser', (done) => {
       const logTokens = 'someLogTokens';
